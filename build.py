@@ -23,8 +23,9 @@ def compile(config):
     if not os.path.isdir(build_dir):
         os.mkdir(build_dir)
 
-    cmd = ["nvcc"] +  sources + ["-o", build_dir + "/" + program_name]
+    cmd = ["nvcc"] +  sources
     cmd += ["--extended-lambda"] # for extended lamba __device__
+    cmd += ["-o", build_dir + "/" + program_name] # output
     if config.debug:
         cmd += ["-g"]
     else:
