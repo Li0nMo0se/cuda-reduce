@@ -1,3 +1,3 @@
 # cuda-reduce
 
-Highly optimized reduce in CUDA
+Highly optimized and templated reduce in CUDA
