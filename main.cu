@@ -1,7 +1,9 @@
 #include <iostream>
+#include <sstream>
 #include "cuda.h"
 
 #include "reduce.cuh"
+#include "timer.h"
 
 
 /*! \brief init arrays for a reduce_add and get the result for later comparison */
@@ -30,7 +32,7 @@ static U init_data_sum(T** d_data, U** d_result, size_t size)
 
 /*! \brief Check the results of the gpu reduce and free ressources */
 template <typename T, typename U>
-static void check_result(U* d_result, U h_expected, T* d_data)
+static void check_result(U* const d_result, const U h_expected, T* const d_data)
 {
     U h_result;
     cudaSafeCall(cudaMemcpy(&h_result, d_result, sizeof(U), cudaMemcpyDeviceToHost));
@@ -40,20 +42,25 @@ static void check_result(U* d_result, U h_expected, T* d_data)
 
 
     if (h_expected != h_result)
-        std::cout << "Failure. Expected: " << h_expected << " Got: " << h_result << std::endl;
+        std::cout << "failure. Expected: " << h_expected << " Got: " << h_result << std::endl;
     else
-        std::cout << "Success." << std::endl;
+        std::cout << "success." << std::endl;
 }
 
 
-int main()
+template <typename T, typename U>
+void make_test(const size_t size)
 {
-    constexpr size_t size = 100000; // 100 000
-    int* d_data;
-    int* d_result;
+    // T is the input array type
+    // U is the result type (could be T)
+    T* d_data;
+    U* d_result;
 
-    int h_expected = init_data_sum(&d_data, &d_result, size);
+    U h_expected = init_data_sum(&d_data, &d_result, size);
 
+    // Timer (better use nivdia nsight compute for a better timer)
+    GpuTimer timer;
+    timer.Start();
     // Run the reduce on default stream
     reduce_add(d_data, d_result, size);
 
@@ -61,8 +68,27 @@ int main()
     // Use cudaStreamSynchronize if the reduce has been ran on a stream
     // different than the default stream
     cudaDeviceSynchronize();
+    timer.Stop();
 
+    std::cout << "Reduce of " << size << " elements: ";
+    // Error of precision may accurate if the size is too large
     check_result(d_result, h_expected, d_data);
+    std::cout << "Time elapsed: " << timer.Elapsed() << " ms." << std::endl;
+}
+
+int main(int argc, char* argv[])
+{
+    // parse argv
+    if (argc != 2)
+    {
+        std::cout << "Usage: ./" << argv[0] << " array_size" << std::endl;
+        return EXIT_FAILURE;
+    }
+    std::stringstream size_ss(argv[1]);
+    size_t size;
+    size_ss >> size;
+
+    make_test<float, double>(size);
 
     return 1;
 }
