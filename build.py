@@ -27,7 +27,7 @@ def compile(config):
     cmd += ["--extended-lambda"] # for extended lamba __device__
     cmd += ["-o", build_dir + "/" + program_name] # output
     if config.debug:
-        cmd += ["-g"]
+        cmd += ["-g", "-G"] # debug and device-debug. Define __CUDACC_DEBUG__
     else:
         cmd += ["-O2"]
 

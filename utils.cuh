@@ -1,25 +1,29 @@
 #pragma once
 
-#ifndef _DEBUG
+#include <stdio.h>
+
+#ifndef __CUDACC_DEBUG__
 #define cudaCheckError()
 #else
-#define cudaCheckError()
-    {                                                                                     \
-        auto e = cudaGetLastError();                                                      \
-        if (e != cudaSuccess)                                                             \
-        {                                                                                 \
-            printf("Cuda failure %s:%d: '%s'\n",__FILE__,__LINE__,cudaGetErrorString(e)); \
-            exit(0);                                                                      \
-        }                                                                                 \
+#define cudaCheckError()                                                                     \
+    {                                                                                        \
+        printf("In cudaCheckError Debug\n");                                                 \
+        auto e = cudaGetLastError();                                                         \
+        if (e != cudaSuccess)                                                                \
+        {                                                                                    \
+            printf("Cuda failure %s:%d: '%s'\n", __FILE__, __LINE__, cudaGetErrorString(e)); \
+            exit(0);                                                                         \
+        }                                                                                    \
     }
-    #endif
+#endif
 
-#ifndef _DEBUG
+#ifndef __CUDACC_DEBUG__
 #define cudaSafeCall(ans) ans
 #else
-#define cudaSafeCall(ans)                                                      \
-    {                                                                          \
-        gpuAssertDebug((ans), __FILE__, __LINE__);                             \
+#define cudaSafeCall(ans)                          \
+    {                                              \
+        printf("In cudaSafeCall Debug\n");         \
+        gpuAssertDebug((ans), __FILE__, __LINE__); \
     }
 inline void
 gpuAssertDebug(cudaError_t code, const char* file, int line, bool abort = true)
