@@ -7,7 +7,6 @@
 #else
 #define cudaCheckError()                                                                     \
     {                                                                                        \
-        printf("In cudaCheckError Debug\n");                                                 \
         auto e = cudaGetLastError();                                                         \
         if (e != cudaSuccess)                                                                \
         {                                                                                    \
@@ -22,7 +21,6 @@
 #else
 #define cudaSafeCall(ans)                          \
     {                                              \
-        printf("In cudaSafeCall Debug\n");         \
         gpuAssertDebug((ans), __FILE__, __LINE__); \
     }
 inline void

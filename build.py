@@ -26,6 +26,7 @@ def compile(config):
     cmd = ["nvcc"] +  sources
     cmd += ["--extended-lambda"] # for extended lamba __device__
     cmd += ["-o", build_dir + "/" + program_name] # output
+    cmd += ["-arch=compute_50", "-code=sm_50"]
     if config.debug:
         cmd += ["-g", "-G"] # debug and device-debug. Define __CUDACC_DEBUG__
     else:
